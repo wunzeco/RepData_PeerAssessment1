@@ -8,14 +8,58 @@ output:
 
 ## Loading and preprocessing the data
 
-
+```{r}
+activities = read.csv("~/work/R/coursera/repdata-012/RepData_PeerAssessment1/activity.csv")
+str(activities)
+```
 
 ## What is mean total number of steps taken per day?
 
+```{r}
+df = activities[!is.na(activities$steps),]
+any(is.na(df$steps))
+```
+
+1. Total number of steps taken each day
+
+```{r}
+library(plyr)
+t = ddply(df, "date", summarise, total.steps = sum(steps))
+hist(t$total.steps, main = "Total number of steps taken each day", xlab = "No. of steps")
+```
+
+
+2. Mean and median total number of steps taken per day
+
+  - mean
+
+```{r}
+mean(t$total.steps)
+```
+
+  - median
+
+```{r}
+median(t$total.steps)
+```
 
 
 ## What is the average daily activity pattern?
+1.  A time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis)
 
+```{r}
+av = ddply(df, "interval", summarise, mean.steps = mean(steps))
+plot(av$interval, av$mean.steps, type = "l",
+     main = "Average number of steps taken, averaged across all days",
+     xlab = "5-minute interval", ylab = "Average No. of steps")
+```
+
+
+2.  5-minute interval, on average across all the days in the dataset, that contains the maximum number of steps
+
+```{r}
+av[av$mean.steps == max(av$mean.steps),]
+```
 
 
 ## Imputing missing values
