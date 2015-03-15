@@ -228,8 +228,8 @@ activities_avg <- ddply(activities_new, c("interval", "day_level"), summarise, a
 library(lattice)
 xyplot(avg.steps ~ interval | day_level, data = activities_avg, layout = c(1,2),
        main = "Average number of steps taken per weekday days or weekend days",
-       xlab = "Number of steps",
-       ylab = "Interval",
+       ylab = "Number of steps",
+       xlab = "Interval",
        type = "l")
 ```
 
