@@ -32,13 +32,12 @@ hist(t$total.steps, xlab = "No. of steps",
 
 2. Mean and median total number of steps taken per day
 
-    +   mean
+  -   mean
 
 ```{r}
 mean(t$total.steps)
 ```
-
-    +   median
+  -  median
 
 ```{r}
 median(t$total.steps)
@@ -103,7 +102,8 @@ activities_new$steps <- act_processed$new.steps
 
 ```{r}
 t <- ddply(activities_new, "date", summarise, total.steps = sum(steps))
-hist(t$total.steps, xlab = "No. of steps", main = "Total number of steps")
+hist(t$total.steps, xlab = "No. of steps", 
+     main = "Total number of steps per day")
 mean(t$total.steps)
 median(t$total.steps)
 ```
@@ -118,4 +118,33 @@ median(t$total.steps)
         Hence, this highlights the bias presence of missing data can introduce
         to a calculation.
 
+
 ## Are there differences in activity patterns between weekdays and weekends?
+
+1.  Create a new factor variable in the dataset with two levels -- "weekday" 
+    and "weekend" indicating whether a given date is a weekday or weekend day.
+    
+```{r}
+days <- weekdays(as.Date(activities_new$date))
+l <- days
+l[l != "Saturday" & l != "Sunday"] <- "weekday"
+l[l == "Saturday" | l == "Sunday"] <- "weekend"
+activities_new <- cbind(activities_new, day_level = factor(l))
+```
+
+
+2.  Make a panel plot containing a time series plot (i.e. type = "l") of the 
+    5-minute interval (x-axis) and the average number of steps taken, averaged 
+    across all weekday days or weekend days (y-axis). 
+
+```{r}
+# Avg number of steps taken, averaged across all weekday days or weekend days
+activities_avg <- ddply(activities_new, c("interval", "day_level"), summarise, avg.steps = mean(steps))
+
+library(lattice)
+xyplot(avg.steps ~ interval | day_level, data = activities_avg, layout = c(1,2),
+       main = "Average number of steps taken per weekday days or weekend days",
+       xlab = "Number of steps",
+       ylab = "Interval",
+       type = "l")
+```
