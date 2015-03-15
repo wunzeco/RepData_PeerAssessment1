@@ -25,19 +25,20 @@ any(is.na(df$steps))
 ```{r}
 library(plyr)
 t = ddply(df, "date", summarise, total.steps = sum(steps))
-hist(t$total.steps, main = "Total number of steps taken each day", xlab = "No. of steps")
+hist(t$total.steps, xlab = "No. of steps", 
+     main = "Total number of steps taken each day")
 ```
 
 
 2. Mean and median total number of steps taken per day
 
-  - mean
+    +   mean
 
 ```{r}
 mean(t$total.steps)
 ```
 
-  - median
+    +   median
 
 ```{r}
 median(t$total.steps)
@@ -45,7 +46,8 @@ median(t$total.steps)
 
 
 ## What is the average daily activity pattern?
-1.  A time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis)
+1.  A time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and 
+    the average number of steps taken, averaged across all days (y-axis)
 
 ```{r}
 av = ddply(df, "interval", summarise, mean.steps = mean(steps))
@@ -55,7 +57,8 @@ plot(av$interval, av$mean.steps, type = "l",
 ```
 
 
-2.  5-minute interval, on average across all the days in the dataset, that contains the maximum number of steps
+2.  5-minute interval, on average across all the days in the dataset, that 
+    contains the maximum number of steps
 
 ```{r}
 av[av$mean.steps == max(av$mean.steps),]
@@ -63,7 +66,56 @@ av[av$mean.steps == max(av$mean.steps),]
 
 
 ## Imputing missing values
+1. The total number of missing values in the dataset (i.e. the total number of 
+    rows with NAs)
+    
+```{r}
+sum(is.na(activities$steps))
+```
 
+2.  Devise a strategy for filling in all of the missing values in the dataset. 
+    For example, using *mean* for that day.
+    
+```{r}
+# Fill in missing 'steps' values (NAs) with the mean for that day.
+act_processed <- ddply(activities, "date", mutate, 
+                       mean.steps = mean(steps, na.rm = TRUE),
+                       new.steps = ifelse(is.na(mean.steps), 0, steps))
 
+# It turn out that in the data set either a day has values for all intervals
+# or NAs for all intervals. The command below will show this:
+#       ddply(activities, "data", summarise, sum(is.na(steps)))
+
+head(act_processed)
+act_processed[1000:1010,]
+```
+
+3.  Create a new dataset that is equal to the original dataset but with the 
+    missing data filled in.
+
+```{r}
+activities_new <- activities
+activities_new$steps <- act_processed$new.steps
+```
+
+4.  Make a histogram of the total number of steps taken each day and Calculate 
+    and report the mean and median total number of steps taken per day.
+
+```{r}
+t <- ddply(activities_new, "date", summarise, total.steps = sum(steps))
+hist(t$total.steps, xlab = "No. of steps", main = "Total number of steps")
+mean(t$total.steps)
+median(t$total.steps)
+```
+
+-   Do these values differ from the estimates from the first part of the assignment? 
+    +   Yes
+
+-   What is the impact of imputing missing data on the estimates of the total 
+    daily number of steps?
+    +   The values of the mean and median total number of steps taken per day 
+        callculated are lower because the missing data were filled with values. 
+        Hence, this highlights the bias presence of missing data can introduce
+        to a calculation.
 
 ## Are there differences in activity patterns between weekdays and weekends?
